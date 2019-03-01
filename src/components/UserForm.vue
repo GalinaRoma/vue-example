@@ -1,11 +1,37 @@
 <template>
-    <form class="column-form" @submit="checkForm">
-        <base-input class="form-row" type="text" placeholder="Full name" v-model="fullName">Full Name</base-input>
-        <base-radio-button class="form-row" firstVariant="Male" secondVariant="Female" v-model="checkedGender">Gender</base-radio-button>
-        <base-input class="form-row" type="tel" placeholder="Phone" v-model="phone">Phone</base-input>
-        <base-input class="form-row" type="email" placeholder="Email" v-model="email">Email</base-input>
-        <base-select class="form-row" data="cities" v-model="checkedCityId">City</base-select>
-        <base-textarea placeholder="Write some info here" v-model="comment"></base-textarea>
+    <form class="column-form" @submit="sendUser">
+        <base-input
+                class="form-row"
+                :valid="valid.fullName"
+                type="text"
+                placeholder="Full name"
+                :inputValue="fullName"
+                @inputValueChange="setFullName">Full Name</base-input>
+        <base-radio-button
+                class="form-row"
+                firstVariant="Male"
+                secondVariant="Female"
+                :checkedValue="checkedGender"
+                @inputValueChange="setGender">Gender</base-radio-button>
+        <base-input
+                class="form-row"
+                :valid="valid.phone"
+                type="tel"
+                placeholder="Phone"
+                :inputValue="phone"
+                @inputValueChange="setPhone">Phone</base-input>
+        <base-input
+                class="form-row"
+                :valid="valid.email"
+                type="email"
+                placeholder="Email"
+                :inputValue="email"
+                @inputValueChange="setEmail">Email</base-input>
+        <base-select
+                class="form-row"
+                :data="cities"
+                :selectedValue="selectedCityId"
+                @inputValueChange="setSelectedCity">City</base-select>
         <button type="submit">Save</button>
     </form>
 </template>
@@ -13,7 +39,6 @@
 <script>
     import BaseInput from './BaseInput';
     import BaseSelect from './BaseSelect';
-    import BaseTextarea from './BaseTextarea';
     import BaseRadioButton from './BaseRadioButton';
 
     export default {
@@ -21,40 +46,69 @@
         components: {
             BaseInput,
             BaseSelect,
-            BaseTextarea,
             BaseRadioButton,
         },
         data () {
             return {
                 cities: null,
                 fullName: null,
-                checkedGender: null,
+                checkedGender: 'firstVariant',
                 phone: null,
                 email: null,
-                checkedCityId: null,
-                comment: null,
+                selectedCityId: 1,
+                valid: {
+                    fullName: true,
+                    phone: true,
+                    email: true,
+                }
             }
         },
         methods:{
-            checkForm: function (e) {
-                if (this.fullName) {
-                    return true;
-                }
-
+            sendUser: function (e) {
+                this.checkForm(e);
+                const [firstName, lastName] = this.fullName.split(" ");
+                const data = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    phone: this.phone,
+                    email: this.email,
+                    gender: this.checkedGender,
+                    cityId: this.selectedCityId,
+                };
+                fetch('https://api.myjson.com/bins/amtzq', {
+                    method: 'POST',
+                    data: JSON.stringify(data),
+                }).then(response => {
+                    // eslint-disable-next-line
+                    console.log(response)
+                });
                 e.preventDefault();
+            },
+            checkForm: function () {
+                this.valid.fullName = this.fullName && this.fullName.split(" ").length > 1;
+            },
+            setFullName: function(newValue) {
+                this.fullName = newValue;
+            },
+            setPhone: function(newValue) {
+                this.phone = newValue;
+            },
+            setEmail: function(newValue) {
+                this.email = newValue;
+            },
+            setGender: function(newValue) {
+                this.checkedGender = newValue;
+            },
+            setSelectedCity: function(newValue) {
+                this.selectedCityId = newValue;
             }
         },
         mounted () {
-            const myRequest = new Request('https://vueproject-fd49b.firebaseio.com/', {
+            fetch('https://api.myjson.com/bins/amtzq', {
                 method: 'GET',
-                mode: 'no-cors',
-            });
-            fetch(myRequest)
-                .then(response => {
-                    // eslint-disable-next-line
-                    console.log(response);
-                    this.cities = response.cities;
-                });
+            })
+                .then(response => response.json())
+                .then(data => this.cities = data.cities);
         }
     }
 </script>
@@ -75,6 +129,12 @@
     .radio-variants {
         width: 16rem;
     }
+    .not-valid-element {
+        border: 1px solid #ff1a2b;
+    }
+    .valid-element {
+        border: 1px solid #c8c8c8;
+    }
     label {
         display: inline-block;
         width: 8rem;
@@ -82,9 +142,6 @@
     input,
     select {
         width: 16rem;
-    }
-    textarea {
-        width: 24rem;
     }
     button {
         width: 24rem;
