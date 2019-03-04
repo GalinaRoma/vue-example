@@ -7,10 +7,12 @@
 </template>
 
 <script>
-    import UserForm from './components/UserForm.vue'
+    import UserForm from './components/UserForm.vue';
+    import store from './store/index';
 
     export default {
       name: 'app',
+      store,
       components: {
         UserForm
       }

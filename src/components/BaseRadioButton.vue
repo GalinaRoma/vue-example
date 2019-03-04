@@ -3,9 +3,9 @@
         <label><slot></slot></label>
         <div class="radio-variants radio-row">
             <label class="variant-label">{{ firstVariant }}</label>
-            <input type="radio" name="radio" value="firstVariant" checked="checkedFirst" @click="$emit('inputValueChange', $event.target.value)"/>
+            <input type="radio" name="radio" :value="firstVariant" checked="checkedFirst" @click="$emit('inputValueChange', $event.target.value)"/>
             <label class="variant-label">{{ secondVariant }}</label>
-            <input type="radio" name="radio" value="secondVariant" checked="checkedSecond" @click="$emit('inputValueChange', $event.target.value)"/>
+            <input type="radio" name="radio" :value="secondVariant" checked="checkedSecond" @click="$emit('inputValueChange', $event.target.value)"/>
         </div>
     </div>
 </template>

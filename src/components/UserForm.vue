@@ -11,7 +11,7 @@
                 class="form-row"
                 firstVariant="Male"
                 secondVariant="Female"
-                :checkedValue="checkedGender"
+                :checkedValue="gender"
                 @inputValueChange="setGender">Gender</base-radio-button>
         <base-input
                 class="form-row"
@@ -31,7 +31,7 @@
                 class="form-row"
                 :data="cities"
                 :selectedValue="selectedCityId"
-                @inputValueChange="setSelectedCity">City</base-select>
+                @inputValueChange="setCityId">City</base-select>
         <button type="submit">Save</button>
     </form>
 </template>
@@ -40,6 +40,7 @@
     import BaseInput from './BaseInput';
     import BaseSelect from './BaseSelect';
     import BaseRadioButton from './BaseRadioButton';
+    import { mapState } from 'vuex'
 
     export default {
         name: 'UserForm',
@@ -48,14 +49,18 @@
             BaseSelect,
             BaseRadioButton,
         },
+        computed: {
+            ...mapState({
+                cities: state => state.userForm.cities,
+                fullName: state => state.userForm.fullName,
+                gender: state => state.userForm.gender,
+                phone: state => state.userForm.phone,
+                email: state => state.userForm.email,
+                selectedCityId: state => state.userForm.cityId,
+            }),
+        },
         data () {
             return {
-                cities: null,
-                fullName: null,
-                checkedGender: 'firstVariant',
-                phone: null,
-                email: null,
-                selectedCityId: 1,
                 valid: {
                     fullName: true,
                     phone: true,
@@ -69,51 +74,42 @@
                 if (!this.checkForm(e)) {
                     return;
                 }
-                const [firstName, lastName] = this.fullName.split(" ");
-                const data = {
-                    firstName: firstName,
-                    lastName: lastName,
+                // eslint-disable-next-line
+                console.log({
+                    fullName: this.fullName,
                     phone: this.phone,
                     email: this.email,
-                    gender: this.checkedGender,
+                    gender: this.gender,
                     cityId: this.selectedCityId,
-                };
-                fetch('https://api.myjson.com/bins/amtzq', {
-                    method: 'POST',
-                    data: JSON.stringify(data),
-                }).then(response => {
-                    // eslint-disable-next-line
-                    console.log(response)
                 });
-                },
+            },
             checkForm: function () {
-                this.valid.fullName = this.fullName && this.fullName.split(" ").length > 1;
+                this.valid.fullName = this.fullName;
                 this.valid.phone = this.phone && /\d{11}/.test(this.phone);
                 this.valid.email = this.email && /.+@.+/.test(this.email);
                 return this.valid.email && this.valid.fullName && this.valid.phone;
             },
             setFullName: function(newValue) {
-                this.fullName = newValue;
+                this.$store.commit('userForm/setFullName', newValue);
             },
             setPhone: function(newValue) {
-                this.phone = newValue;
+                this.$store.commit('userForm/setPhone', newValue);
             },
             setEmail: function(newValue) {
-                this.email = newValue;
+                this.$store.commit('userForm/setEmail', newValue);
             },
             setGender: function(newValue) {
-                this.checkedGender = newValue;
+                this.$store.commit('userForm/setGender', newValue);
             },
-            setSelectedCity: function(newValue) {
-                this.selectedCityId = newValue;
+            setCityId: function(newValue) {
+                this.$store.commit('userForm/setCityId', newValue);
+            },
+            loadCities: function() {
+                this.$store.dispatch('userForm/loadCities');
             }
         },
         mounted () {
-            fetch('https://api.myjson.com/bins/amtzq', {
-                method: 'GET',
-            })
-                .then(response => response.json())
-                .then(data => this.cities = data.cities);
+            this.loadCities();
         }
     }
 </script>
