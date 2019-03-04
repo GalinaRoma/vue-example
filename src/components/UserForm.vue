@@ -65,7 +65,10 @@
         },
         methods:{
             sendUser: function (e) {
-                this.checkForm(e);
+                e.preventDefault();
+                if (!this.checkForm(e)) {
+                    return;
+                }
                 const [firstName, lastName] = this.fullName.split(" ");
                 const data = {
                     firstName: firstName,
@@ -82,10 +85,12 @@
                     // eslint-disable-next-line
                     console.log(response)
                 });
-                e.preventDefault();
-            },
+                },
             checkForm: function () {
                 this.valid.fullName = this.fullName && this.fullName.split(" ").length > 1;
+                this.valid.phone = this.phone && /\d{11}/.test(this.phone);
+                this.valid.email = this.email && /.+@.+/.test(this.email);
+                return this.valid.email && this.valid.fullName && this.valid.phone;
             },
             setFullName: function(newValue) {
                 this.fullName = newValue;
