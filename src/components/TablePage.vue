@@ -11,7 +11,3 @@
         name: "TablePage"
     }
 </script>
-
-<style scoped>
-
-</style>
