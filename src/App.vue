@@ -1,21 +1,30 @@
 <template>
   <div id="app">
-    <h1 class="page-title">User Form Page</h1>
-    <hr/>
-    <user-form></user-form>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-    import UserForm from './components/UserForm.vue';
+    import Vue from 'vue';
+    import Router from 'vue-router';
     import store from './store/index';
+    import TablePage from './components/TablePage.vue';
+    import UserPage from './components/UserPage.vue';
+
+    Vue.use(Router);
+
+    const router = new Router({
+        routes: [
+            { path: '', component: UserPage },
+            { path: '/user', name: 'user',component: UserPage },
+            { path: '/table', name: 'table', component: TablePage },
+        ],
+    });
 
     export default {
-      name: 'app',
-      store,
-      components: {
-        UserForm
-      }
+        name: 'app',
+        router,
+        store,
     }
 </script>
 
@@ -25,7 +34,8 @@
         color: #2c3e50;
         margin-top: 30px;
     }
+
     .page-title {
-        text-align: center;
+      text-align: center;
     }
 </style>
